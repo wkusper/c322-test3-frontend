@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take a quiz</title>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="general.css">
+    <link rel="stylesheet" href="cards.css">
+</head>
+<body>
+    <ul class="topnav">
+        <li><a href="index.html">Home</a></li>
+        <li><a href="add-question.html">Add questions</a></li>
+        <li><a  href="make-a-quiz.html">Create a quiz</a></li>
+        <li><a class="active" href="take-a-quiz.html">Take a quiz</a></li>
+        <li class="right"><a href="login.html">Login</a></li>
+      </ul>
+
+      <h3>Here are the list of all available quizzes. Click on a quiz to start taking the quiz.</h3>
+
+      <div id="list" class="cards"></div>
+
+      <script>
+        let host = "http://localhost:8080";
+        let quizzes = [];
+        displayTheQuizzes();
+  
+        async function getAll() {
+          let response = await fetch(host + "/quizzes");
+          let result = await response.json();
+          return result;
+        }
+  
+        async function displayTheQuizzes() {
+          if (quizzes.length == 0) {
+            quizzes = await getAll();
+          }
+  
+          let list = document.getElementById("list");
+          list.innerHTML = "";
+  
+          for (let quiz of quizzes) {
+            let div = document.createElement("div");
+            div.id = `{quiz.id}`;
+            div.className = "card";
+            div.onclick = function () {
+                location.href = `quiz.html?id=${quiz.id}`;
+            };
+            let innerHtml = `           
+          <div class="container">
+            <h4><b>${quiz.id}</b></h4> 
+            <p>${quiz.title}</p>   
+            <p>(${quiz.questionIds.length} questions)</p>           
+          </div>       
+              `;
+            div.innerHTML = innerHtml;
+            list.appendChild(div);
+          }
+        }
+        </script>
+
+</body>
+</html>

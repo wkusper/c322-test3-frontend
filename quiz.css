@@ -1,0 +1,17 @@
+.screen{
+    width: 40vw;
+    height: 24.7vw;
+    margin-left: 30vw;
+    margin-right: 30vw;
+}
+
+.controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+.hide {
+    visibility: hidden;
+    display: none;
+}
+

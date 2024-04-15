@@ -1,0 +1,23 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 2%;
+  }
+  form {
+    max-width: 61.8%;
+    margin: 2%;
+  }
+  img {
+    max-width: auto;
+    height: auto;
+    border-radius: 5px 5px 0 0;
+  }
+  
+  .container {
+    padding: 2px 16px;
+  }
+
+  button {
+    margin: 10px;
+  }
+
+ 

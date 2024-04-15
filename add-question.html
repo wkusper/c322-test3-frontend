@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Add a question</title>
+    <link rel="stylesheet" href="navbar.css">
+    <link rel="stylesheet" href="general.css">
+    <link rel="stylesheet" href="cards.css">
+  </head>
+  <body>
+    <ul class="topnav">
+      <li><a  href="index.html">Home</a></li>
+      <li><a class="active" href="add-question.html">Add questions</a></li>
+      <li><a href="make-a-quiz.html">Create a quiz</a></li>
+      <li><a href="take-a-quiz.html">Take a quiz</a></li>
+      <li class="right"><a href="login.html">Login</a></li>
+    </ul>
+
+    <form>
+      <!-- Question Text -->
+      <label for="questionText">Question:</label><br />
+      <textarea
+        id="questionText"
+        name="description"
+        rows="4"
+        cols="50"
+        required
+      ></textarea
+      ><br />
+
+      <!-- Image Upload -->
+      <label for="imageUpload">Image:</label><br />
+      <input
+        type="file"
+        id="imageUpload"
+        name="imageFile"
+        accept="image/*"
+      /><br />
+
+      <!-- Options -->
+      <label>Options:</label><br />
+      <input type="radio" id="optionA" name="answer" value="A" required />
+      <label for="optionA">A. </label>
+      <input type="text" id="optionAText" name="optionA" required /><br />
+
+      <input type="radio" id="optionB" name="answer" value="B" required />
+      <label for="optionB">B. </label>
+      <input type="text" id="optionBText" name="optionB" required /><br />
+
+      <input type="radio" id="optionC" name="answer" value="C" required />
+      <label for="optionC">C. </label>
+      <input type="text" id="optionCText" name="optionC" required /><br />
+
+      <!-- Submit Button -->
+      <input type="button" value="Add The Question" onclick="add()" />
+    </form>
+
+    <div id="list" class="cards"></div>
+
+    <script>
+      let host = "http://localhost:8080";
+      let questions = [];
+      displayTheQuestions();
+
+      async function getAll() {
+        let response = await fetch(host + "/questions");
+        let result = await response.json();
+        return result;
+      }
+
+      async function displayTheQuestions() {
+        if (questions.length == 0) {
+          questions = await getAll();
+        }
+
+        let list = document.getElementById("list");
+        list.innerHTML = "";
+
+        for (let question of questions) {
+          let div = document.createElement("div");
+          div.className = "card";
+          let innerHtml = `
+         
+        <img src="http://localhost:8080/questions/${question.id}/image" alt="question" style="width:100%">
+        <div class="container">
+          <h4><b>${question.id}</b></h4> 
+          <p>${question.description}</p>
+          <form>
+              <input type="radio" id="q${question.id}ptionA" name="q2Answer" value="A">
+              <label for="q${question.id}ptionA">${question.choices[0]}</label><br>
+
+              <input type="radio" id="q${question.id}ptionB" name="q2Answer" value="B">
+              <label for="q${question.id}ptionB">${question.choices[1]}</label><br>
+
+              <input type="radio" id="q${question.id}ptionC" name="q2Answer" value="C">
+              <label for="q${question.id}ptionC">${question.choices[2]}</label><br>       
+          </form> 
+        </div>
+     
+            `;
+          div.innerHTML = innerHtml;
+          list.appendChild(div);
+        }
+      }
+
+      function add() {
+        let form = document.forms[0];
+        let formData = new FormData(form);
+        // output as an object
+        let data = Object.fromEntries(formData);
+        let question = {};
+        question.description = data.description;
+        question.choices = [data.optionA, data.optionB, data.optionC];
+        switch (data.answer) {
+          case "A":
+            question.answer = data.optionA;
+            break;
+          case "B":
+            question.answer = data.optionB;
+            break;
+          case "C":
+            question.answer = data.optionC;
+            break;
+        }        
+        addTheQuestion(question, data.imageFile);
+      }
+
+      async function addTheQuestion(question, imageFile) {
+        let message = "";
+
+        let request = {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(question),
+        };
+        let response = await fetch(host + "/questions", request);
+        if (response.status == 200) {
+          let id = await response.json();
+          let result = await submitTheImage(id, imageFile);
+          if (result) {
+            message = "The question was added successfully!";
+          } else {
+            message =
+              "Something went wrong! Question data was saved successfully but question image was not saved.";
+          }
+        } else {
+          console.log(response);
+          message = "Something went wrong! Question data could not be saved.";
+        }
+        alert(message);
+        location.href = "add-question.html";
+      }
+
+      async function submitTheImage(id, imageFile) {
+        let formData = new FormData();
+        formData.append("file", imageFile);
+        let request = {
+          method: "POST",
+          body: formData,
+        };
+        let response = await fetch(
+          host + "/questions/" + id + "/image",
+          request
+        );
+        let result = await response.json();
+        return result;
+      }
+    </script>
+  </body>
+</html>

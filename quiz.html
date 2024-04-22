@@ -8,6 +8,7 @@
     <link rel="stylesheet" href="general.css" />
     <link rel="stylesheet" href="cards.css" />
     <link rel="stylesheet" href="quiz.css" />
+    <script src="configuration.js"></script>
   </head>
 
   <body>
@@ -28,7 +29,7 @@
     </div>
 
     <script>
-      let host = "http://localhost:8080";
+      let host = "https://test3-latest-p9am.onrender.com";
       const urlParams = new URLSearchParams(window.location.search);
       const id = urlParams.get("id");
       let quiz = null;
@@ -63,7 +64,6 @@
         let question = quiz.questions[index];
         let form = document.forms[0];
         let formData = new FormData(form);
-        // output as an object
         let data = Object.fromEntries(formData);        
         switch (data.answer) {
           case "A":
@@ -86,17 +86,16 @@
       }
 
       async function displayTheResult() {
-        let score = 0;        
-        for(let i = 0; i < quiz.questions.length; i++) {
-            let q = quiz.questions[i];
-            if(q.answer.trim() == userAnswers.get(i).trim()) {
-                score += 1;
-            }            
-        }        
-        item.innerHTML = "";
-        item.innerHTML += `<h4>You completed the quiz ${quiz.title}.</h4>`;
-        item.innerHTML += `<h4>You scored ${score} out of ${quiz.questions.length}.</h4>`;
-      }
+        let score = 0;
+        quiz.questions.forEach((question, index) => {
+            if (question.answer === userAnswers.get(question.id)) {
+                score++;
+            }
+        });
+        const resultText = `<h4>You completed the quiz: ${quiz.title}.</h4>
+                            <h4>Your score: ${score} out of ${quiz.questions.length}.</h4>`;
+        document.getElementById("item").innerHTML = resultText;
+    }
 
       async function displayTheQuestion(index) {
         let question = quiz.questions[index];
@@ -114,7 +113,7 @@
         let div = document.createElement("div");
         div.className = "card";        
         let innerHtml = `
-         <img src="http://localhost:8080/questions/${question.id}/image" alt="question" style="width:100%">
+         <img src="https://test3-latest-p9am.onrender.com/questions/${question.id}/image" alt="question" style="width:100%">
          <div class="container">
            <h4><b>${question.id}</b></h4>
            <p>${question.description}</p>

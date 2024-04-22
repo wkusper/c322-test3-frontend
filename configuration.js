@@ -1,7 +1,7 @@
 const mode = 0;
 
 const host_local = "http://localhost:8080";
-const host_remote = "https://ducks-service-???.onrender.com";
+const host_remote = "https://test3-latest-p9am.onrender.com";
 
 function getHost() {
     return (mode == 0) ? host_local : host_remote;
@@ -51,39 +51,36 @@ async function updateTheNavigationBar() {
 
 
 async function signup() {
-    let email = document.getElementById("email").value;
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
-    let customer = {email:email, username: username, password: password}
-    let request = {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json"
-        },
+    let email = document.getElementById("email-signup").value;
+    let username = document.getElementById("username-signup").value;
+    let password = document.getElementById("password-signup").value;
+    let customer = { username: username, password: password, email: email };
+    fetch(getHost() + '/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(customer)
-      };
-      try {
-        let response = await fetch(getHost() + "/signup", request);
-        if(response.status == 200) {  
-            alert("The registration was successful!")
-            location.href = "login.html";
-
+    })
+    .then(response => {
+        if (response.ok) {
+            alert('Signup successful');
         } else {
             console.log(`response status:${response.status}`);            
             alert("Something went wrong!");
+            location.href = "index.html";
         }
-      }
-      catch(error) {
-        console.log(error);        
-        alert("Something went wrong!");
-      }    
+    })
+    .catch(error => {
+        console.log(error);
+        alert('Something went wrong!');
+    });
 }
 
 
 
+
 async function login() {    
-    let username = document.getElementById("username").value;
-    let password = document.getElementById("password").value;
+    let username = document.getElementById("username-login").value;
+    let password = document.getElementById("password-login").value;
     let customer = {username: username, password: password}
     let request = {
         method: "POST",
@@ -94,13 +91,15 @@ async function login() {
       };
       try {
         let response = await fetch(getHost() + "/signin", request);
-        if(response.status == 200) {  
+        if(response.ok) {  
             alert("The login was successful!");
             const token = await response.text();
-            saveTheToken(token);            
+            saveTheToken(token);
+            localStorage.setItem("username", username);
+            alert("The login was successful!");            
             location.href = "index.html";
         } else {
-            console.log(`response status:${response.status}`);   
+            console.error(error); 
             removeTheToken();         
             alert("Something went wrong!");
         }
